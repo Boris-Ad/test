@@ -20,7 +20,6 @@
       </button>
     </div>
   </div>
-  <input type="range" />
 </template>
 
 <script>
@@ -48,8 +47,10 @@ export default {
     },
 
     chipMove(e) {
-     this.shift = e.clientX - this.$refs.scale.getBoundingClientRect().left - this.radiusChip;
-       
+      this.shift =
+        e.clientX -
+        this.$refs.scale.getBoundingClientRect().left -
+        this.radiusChip;
     },
     chipUp() {
       document.removeEventListener("mousemove", this.chipMove);
@@ -84,7 +85,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .range {
   width: 50%;
   margin: 50px auto;
@@ -95,6 +96,7 @@ export default {
 .range__value {
   color: rgba(255, 255, 255, 0.4);
 }
+
 .scale {
   width: 100%;
   height: 30px;
