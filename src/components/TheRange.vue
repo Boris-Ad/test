@@ -2,25 +2,22 @@
   <div class="range">
     <div class="range__value">{{ percent }}%</div>
     <div class="range__input">
-      <div 
-      @touchstart.prevent="scaleClick($event)" 
-      @mousedown.prevent="scaleClick($event)" 
-      ref="scale" class="scale">
-        <div
-          ref="chip"
-          class="chip"
-          :style="{ left: `calc(${percent}% - ${currentWidth}px)` }"
-        ></div>
+      <div
+        @touchstart.prevent="scaleClick($event)"
+        @mousedown.prevent="scaleClick($event)"
+        ref="scale"
+        class="scale">
+        <div ref="chip" class="chip"></div>
       </div>
     </div>
     <div class="range__buttons">
       <button
-        v-for="val in buttons"
-        @click="$emit('newPercent', val)"
-        :key="val"
+        v-for="value in buttons"
+        @click="$emit('newPercent', value)"
+        :key="value"
         class="btn"
       >
-        {{ val }}%
+        {{ value }}%
       </button>
     </div>
   </div>
@@ -41,64 +38,61 @@ export default {
     };
   },
   methods: {
-     checkE(e) {
+    checkEvent(e) {
       if (e.clientX) {
         this.myEvent = e;
       } else {
         this.myEvent = e.changedTouches[0];
       }
     },
-     shiftChip(event) {
-      this.checkE(event);
+    shiftChip(event) {
+      this.checkEvent(event);
       this.shift =
         this.myEvent.clientX -
         this.$refs.scale.getBoundingClientRect().left -
         this.radiusChip;
+        const newPercent = ((100 / (this.$refs.scale.offsetWidth - this.widthChip)) * this.shift).toFixed(1);
+        this.$emit('newPercent', newPercent);
+    },
+     findPercent(){
+      this.shift = ((this.$refs.scale.offsetWidth - this.widthChip) / 100) * this.percent;
+      if(this.percent < 0) this.$emit('newPercent', 0);
+      if(this.percent > 100) this.$emit('newPercent', 100);
+      this.writeStyle()
     },
 
     scaleClick(event) {
-     this.shiftChip(event)
-       document.addEventListener("mousemove", this.mouseMove);
+      this.shiftChip(event);
+      document.addEventListener("mousemove", this.mouseMove);
       document.addEventListener("mouseup", this.mouseUp);
       document.addEventListener("touchmove", this.mouseMove);
       document.addEventListener("touchend", this.mouseUp);
       this.$refs.chip.ondragstart = () => false;
     },
 
-      mouseMove(event) {
-    this.shiftChip(event)
+    mouseMove(event) {
+      this.shiftChip(event);
     },
-     mouseUp() {
+    mouseUp() {
       document.removeEventListener("mouseup", this.mouseUp);
       document.removeEventListener("mousemove", this.mouseMove);
       document.removeEventListener("touchmove", this.mouseMove);
       document.removeEventListener("touchend", this.mouseUp);
     },
+   writeStyle(){
+     this.$refs.chip.style.left = this.shift + "px";
+   }
   },
-  computed: {
-    scaleWidth() {
-      return (
-        parseInt(window.getComputedStyle(this.$refs.scale).width) -
-        this.widthChip
-      );
-    },
-    currentWidth() {
-      if (this.percent != 0) {
-        return (this.widthChip / 100) * this.percent;
-      } else {
-        return this.percent;
-      }
-    },
-  },
-  watch: {
+ watch: {
     shift() {
-      if (this.shift != 0) {
-        let currentPercent = (this.shift / (this.scaleWidth / 100)).toFixed(1);
-        if (currentPercent > 100) currentPercent = 100;
-        if (currentPercent < 0) currentPercent = 0;
-        this.$emit("newPercent", currentPercent);
-      }
+     this. writeStyle()
+     },
+    percent() {
+       this.findPercent();
     },
+  },
+   mounted() {
+   this.findPercent();
   },
 };
 </script>
