@@ -2,8 +2,12 @@
   <div class="range">
     <div class="range__value">{{ percent }}%</div>
     <div class="range__input">
-      <div @mousedown.prevent="scaleClick($event)" ref="scale" class="scale">
+      <div 
+      @touchstart.prevent="scaleClick($event)" 
+      @mousedown.prevent="scaleClick($event)" 
+      ref="scale" class="scale">
         <div
+          ref="chip"
           class="chip"
           :style="{ left: `calc(${percent}% - ${currentWidth}px)` }"
         ></div>
@@ -32,29 +36,43 @@ export default {
       buttons: [25, 50, 75, 100],
       widthChip: 26,
       radiusChip: 13,
+      myEvent: null,
       shift: null,
     };
   },
   methods: {
-    scaleClick(e) {
-      this.shift =
-        e.clientX -
-        this.radiusChip -
-        this.$refs.scale.getBoundingClientRect().left;
-
-      document.addEventListener("mousemove", this.chipMove);
-      document.addEventListener("mouseup", this.chipUp);
+     checkE(e) {
+      if (e.clientX) {
+        this.myEvent = e;
+      } else {
+        this.myEvent = e.changedTouches[0];
+      }
     },
-
-    chipMove(e) {
+     shiftChip(event) {
+      this.checkE(event);
       this.shift =
-        e.clientX -
+        this.myEvent.clientX -
         this.$refs.scale.getBoundingClientRect().left -
         this.radiusChip;
     },
-    chipUp() {
-      document.removeEventListener("mousemove", this.chipMove);
-      document.removeEventListener("mouseup", this.chipUp);
+
+    scaleClick(event) {
+     this.shiftChip(event)
+       document.addEventListener("mousemove", this.mouseMove);
+      document.addEventListener("mouseup", this.mouseUp);
+      document.addEventListener("touchmove", this.mouseMove);
+      document.addEventListener("touchend", this.mouseUp);
+      this.$refs.chip.ondragstart = () => false;
+    },
+
+      mouseMove(event) {
+    this.shiftChip(event)
+    },
+     mouseUp() {
+      document.removeEventListener("mouseup", this.mouseUp);
+      document.removeEventListener("mousemove", this.mouseMove);
+      document.removeEventListener("touchmove", this.mouseMove);
+      document.removeEventListener("touchend", this.mouseUp);
     },
   },
   computed: {
@@ -75,10 +93,10 @@ export default {
   watch: {
     shift() {
       if (this.shift != 0) {
-        let reg = (this.shift / (this.scaleWidth / 100)).toFixed(1);
-        if (reg > 100) reg = 100;
-        if (reg < 0) reg = 0;
-        this.$emit("newPercent", reg);
+        let currentPercent = (this.shift / (this.scaleWidth / 100)).toFixed(1);
+        if (currentPercent > 100) currentPercent = 100;
+        if (currentPercent < 0) currentPercent = 0;
+        this.$emit("newPercent", currentPercent);
       }
     },
   },

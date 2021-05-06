@@ -1,33 +1,17 @@
 <template>
-  <the-range
-  @newPercent="newPercent"
-   :percent="percent">
-   </the-range>
-   <the-range-two
-  :percentTwo="percentTwo">
-   </the-range-two>
-   
+<app-navbar></app-navbar>
+  <div class="container">
+   <router-view></router-view>
+  </div>
 </template>
 
 <script>
+import AppNavbar from './components/AppNavbar.vue';
 
-import TheRange from "./components/TheRange.vue";
-import TheRangeTwo from './components/TheRangeTwo.vue';
 export default {
   name: "App",
-  data() {
-    return {
-      percent: 20,
-      percentTwo:20
-    };
-  },
 
-  methods: {
-    newPercent(data){
-      this.percent = data;
-     },
-},
-  components: { TheRange, TheRangeTwo},
+  components: { AppNavbar },
 };
 </script>
 
