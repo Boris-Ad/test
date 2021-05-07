@@ -1,35 +1,34 @@
 <template>
   <div class="range">
-    <div class="range__value">{{ value }}%</div>
+    <div class="range__value">{{ modelValue }}%</div>
     <div class="range__input">
-      <input v-model="value" type="range" />
+      <input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" type="range" />
     </div>
     <div class="range__buttons">
       <button
-        v-for="val in buttons"
-        @click="value = val"
-        :key="val"
+        v-for="percent in buttons"
+        @click="$emit('update:modelValue', percent)"
+        :key="percent"
         class="btn"
       >
-        {{ val }}%
+        {{ percent }}%
       </button>
     </div>
   </div>
+  
 </template>
 
 <script>
 export default {
   name: "TheRangeTwo",
-  props: ["percentTwo"],
+  props: ['modelValue'],
+  emits: ['update:modelValue'],
+
   data() {
     return {
       buttons: [25, 50, 75, 100],
-     value:this.percentTwo
     };
   },
-watch:{
-  
-}
 };
 </script>
 
